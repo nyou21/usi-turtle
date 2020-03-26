@@ -17,5 +17,5 @@ The goal of this assigment is to be able to maneuver a turtle (`turtle_main`), w
 When using `turtle1`, a remote control is available, opening a new terminal, specially created for it.
 The `turtle_main` will start chasing the` turtle1` the moment it approaches. The latter will be killed, and spawned again on the screen, while the `turtle_main` will start writing again from the beginning.
 The program never stops, which is why it is important to do it manually when you are satisfied with the test.
-Furthermore, while the `turtle_main` chases the` turtle1`, it does not target her directly, as if to simulate a real chase but foresees the position of the latter (a few meters), using the `UsiAngryTurtle.calculate_pose_ahead() method `.
+Furthermore, while the `turtle_main` chases the` turtle1`, it does not target her directly, as if to simulate a real chase but foresees the position of the latter (a few meters).
 
