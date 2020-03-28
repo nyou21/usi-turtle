@@ -41,6 +41,8 @@ class TurtleBot:
         self.set_pen = rospy.ServiceProxy('/turtle_main/set_pen', turtlesim.srv.SetPen)
 
         self.velocity_publisher = rospy.Publisher('/turtle_main/cmd_vel', Twist, queue_size=10)
+        self.velocity_publisher_turtle1 = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10) 
+       
         self.pose_main_subscriber = rospy.Subscriber('/turtle_main/pose', Pose, self.update_pose_main)
         self.pose_turtle1_subscriber = rospy.Subscriber('/turtle1/pose', Pose, self.update_pose_turtle1)
 
@@ -86,6 +88,15 @@ class TurtleBot:
         # return constant * (self.steering_angle(goal_pose) - self.pose_main.theta)
 
 
+    def move_turtle1_randomly(self, linear_low=1, linear_high=4, ang_low=-20, ang_high=20):
+        vel_msg_turtle1 = Twist()
+        vel_msg_turtle1.linear.x = np.random.uniform(linear_low, linear_high)
+        vel_msg_turtle1.angular.z = np.random.uniform(ang_low, ang_high)
+        self.velocity_publisher_turtle1.publish(vel_msg_turtle1)
+        self.rate.sleep()
+        
+
+
     def predict_pose(self, initial_pose):
         predict_pose = Pose()
         m = initial_pose.linear_velocity * self.euclidean_distance(initial_pose) * 0.75
@@ -113,6 +124,8 @@ class TurtleBot:
 
         while not rospy.is_shutdown() and self.euclidean_distance(goal_pose) >= distance_tolerance:
 
+            self.move_turtle1_randomly()
+
             if (self.euclidean_distance(self.pose_turtle1) < 2):
                 rospy.loginfo("turtle_main is angry")
                 self.state = "angry"
@@ -121,8 +134,12 @@ class TurtleBot:
                 
                 # following the offender
                 pr_pose = Pose()
+
+
                 while not rospy.is_shutdown() and self.euclidean_distance(self.pose_turtle1) >= distance_tolerance:
                     pr_pose = self.predict_pose(self.pose_turtle1)
+                    self.move_turtle1_randomly()
+
 
                     vel_msg.linear.x = self.linear_vel(pr_pose) # Linear velocity in the x-axis.
                     vel_msg.angular.z = self.angular_vel(pr_pose) # Angular velocity in the z-axis.
@@ -172,7 +189,8 @@ if __name__ == '__main__':
         width = 4
 
         x = TurtleBot()
-    
+
+
 
         while not rospy.is_shutdown():
             x.state = "writing"
@@ -209,6 +227,7 @@ if __name__ == '__main__':
             x.set_pen(color_red,color_green,color_blue,width,0) # pen on
             x.move2goal(8, 4) 
             x.move2goal(8, 8)
+
         
         # If we press control + C, the node will stop.
         #rospy.spin()
